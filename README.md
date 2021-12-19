@@ -1,2 +1,1 @@
-# npm-kakao-map
-NPM KaKao Map
+NPM Kakao map
