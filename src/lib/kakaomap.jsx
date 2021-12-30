@@ -6,13 +6,12 @@ import './kakaomap.css';
 
 const { kakao } = window;
 
-const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, markerArr, isMarker, onClickClusterer}) => {
+const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, markerArr, isMarker, clustererOption}) => {
     const container = useRef(); // 맵을 담을 ref 입니다.
     const [kakaoMap, setKakaoMap] = useState(null); // 카카오맵을 전역에서 쓸수있도록 만든 변수입니다.
     const [, setClusterer] = useState(); // 마커를 담는 클러스터러입니다. 
 
     const [, setMyClusterer] = useState(); // 내 위치토글을 위해 만든 클러스터러입니다.
-    const [isMy, setIsMy] = useState(false); // 내 위치 토글상태입니다. 
 
     // 로드뷰를 위해 만든 변수들입니다.
     const rvWrapperRef = useRef();
@@ -22,7 +21,7 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, marke
     const [isRoadView, setIsRoadView] = useState(false);
 
     // 맵을 생성합니다.
-    useEffect(async () => {
+    useEffect(() => {
         const options = {
             center : new kakao.maps.LatLng(mapCenter.lat, mapCenter.lng),
             level: mapLevel  // 처음 줌 거리 낮을수록 줌인
@@ -37,7 +36,7 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, marke
     }, [kakaoMap])
 
     // (좌표값이 들어있는배열, 클러스터러, 마커이미지, 클러스터러이미지)
-    const addMarkClust = (array, setClusterer, markerImg, clustererImg) => {
+    const addMarkClust = (array, setClusterer, markerImg) => {
         if(array.length == 0){console.error("No marker array"); return;}
 
         var imageSize = new kakao.maps.Size(20, 30),
@@ -55,43 +54,21 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, marke
             );
         })
 
-        // 클러스터러를 선언합니다.
         var clusterer = new kakao.maps.MarkerClusterer({
-            map: kakaoMap,  // 지도는 state로 만든 kakaoMap 을 사용합니다.
-            averageCenter: true, // 마커의 중간점을 계산하여 클러스터러를 생성합니다.
-            minLevel: 1,  //  최소 level 값을 설정합니다.
-            disableClickZoom: true,  // 클러스터러를 클릭 시 자동으로 줌인되는것을 막습니다.
-            calculator: [1, 2, 100],  // 마커의 개수별로 클러스터러 스타일을 달리하는데 그 기준을 잡습니다.
-            styles: clustererImg&& // calculator의 배열에 맞게 스타일을 잡습니다.
-            [
-                {
-                    width:'45px', height:'70px',
-                    backgroundImage: `url(${clustererImg})`, // 이미지에 형식에 맞게 넣으시면 됩니다.
-                    backgroundPosition: 'center',
-                    backgroundSize: 'cover',
-                    backgroundRepeat: 'no-repeat',
-                    color:"salmon",
-                    display: "flex",
-                    justifyContent:"center",
-                    alignCenter:"center",
-                },
-            ]
-            
+            map: kakaoMap,  
+            averageCenter: true, 
+            minLevel: clustererOption.minLevel,  
+            disableClickZoom: clustererOption.disableClickZoom,  
         });
 
-        // 클러스터러에 마커를 추가합니다.
         clusterer.addMarkers(markers);
     
-        // 클러스터러를 클릭 하였을 때 클러스터러의 좌표값을 가져옵니다.
-        // 해당 기능은 중심 좌표값을 활용하여 주변 건물 좌표를 가져오기 위해 만들었습니다.
         kakao.maps.event.addListener(clusterer, 'clusterclick', function(cluster) {
-            onClickClusterer({
+            clustererOption.onClickCenter({
                 lat:cluster._center.toLatLng().Ma,
                 lng:cluster._center.toLatLng().La
             })
         });
-    
-        // 클러스터러를 state로 만들어 외부에서도 접근, 수정 가능하게 만들어줍니다.
         setClusterer(clusterer);
     }
 
@@ -170,6 +147,8 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, marke
     }
 
 
+
+    // 1차 기능 -----------
     const toggleMarker = () => {
         isMarker?
         addMarkClust(markerArr, setClusterer) // 마커, 클러스터러 추가

@@ -1,13 +1,11 @@
 {
-  "name": "kakaomap",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@hellojh/react-kakao-map",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "dependencies": {
     "@babel/cli": "^7.16.0",
     "@babel/preset-react": "^7.16.5",
-    "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^13.5.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "5.0.0",
@@ -17,7 +15,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "publish:npm": "rm -rf dist && mkdir dist && babel src/lib -d dist --copy-files"
   },
   "eslintConfig": {
     "extends": [
@@ -35,6 +34,20 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.16.0",
+    "@babel/preset-react": "^7.16.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hellojaehyeok/npm-kakao-map"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
     ]
   }
 }
