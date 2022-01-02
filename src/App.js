@@ -5,25 +5,47 @@ import KakaoMap from './lib/kakaomap.jsx';
 
 
 function App() {
+  
+  // normal -> 일반 지도
+  // satellite -> 위성지도
   const [mapType, setMapType] = useState("normal");
+  
+  // 지적지도 bool 
   const [isCadastral, setIsCadastral] = useState(false);
+
+  // 지도 레벨
   const [mapLevel, setMapLevel] = useState(3);
-  const [mapCenter, setMapCenter] = useState({lat:37.496, lng:127.029,});
+
+  // 지도 중점
+  const [mapCenter, setMapCenter] = useState({lat:37.496, lng:127.029});
+
+  // 현재 위치
   const [isMyLocation, setIsMyLocation] = useState(false);
 
+  // 마커 토글, 마커 위치
+  const [makerOption, setMakerOption] = useState({
+    makerImg:{
+      src:null,
+      width:0,
+      height:0,
+    },
+    posArr : [
+      {lat:37.499, lng:127.026},
+      {lat:37.499, lng:127.027},
+    ]
+  })
   const [isMarker, setIsMarker] = useState(true);
-  const [markerArr, setMarkerArr] = useState([
-    {lat:37.499, lng:127.026},
-    {lat:37.499, lng:127.027},
-  ]);
+
+  // 클러스터러 옵션
+  const clustererOption = {
+    disableClickZoom:true,
+    onClickCenter:(e) => {console.log(e)},
+    minLevel:2,
+  }
+
 
   return (
     <div className="App">
-      <button onClick={() => setMapType("normal")}>일반지도</button>
-      <button onClick={() => setMapType("satellite")}>위성지도</button>
-      <button onClick={() => setIsCadastral(!isCadastral)}>지적지도 토글</button>
-      <button onClick={() => setMapLevel(mapLevel-1)}>줌인</button>
-      <button onClick={() => setMapLevel(mapLevel+1)}>줌아웃</button>
       <button onClick={() => setIsMyLocation(!isMyLocation)}>내위치 토글</button>
       <button onClick={() => setIsMarker(!isMarker)}>마커 토글</button>
 
@@ -33,13 +55,9 @@ function App() {
         mapLevel={mapLevel}
         mapCenter={mapCenter}
         isMyLocation={isMyLocation}
-        markerArr={markerArr}
+        makerOption={makerOption}
         isMarker={isMarker}
-        clustererOption={{
-          disableClickZoom:true,
-          onClickCenter:(e) => {console.log(e)},
-          minLevel:2,
-        }}
+        clustererOption={clustererOption}
       />
 
 

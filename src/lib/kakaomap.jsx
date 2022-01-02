@@ -1,47 +1,33 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './kakaomap.css';
-// import styled from "styled-components"
-
-// import redMarker from '../img/redMarker.png';
 
 const { kakao } = window;
 
-const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, markerArr, isMarker, clustererOption}) => {
-    const container = useRef(); // 맵을 담을 ref 입니다.
-    const [kakaoMap, setKakaoMap] = useState(null); // 카카오맵을 전역에서 쓸수있도록 만든 변수입니다.
-    const [, setClusterer] = useState(); // 마커를 담는 클러스터러입니다. 
+const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, makerOption, isMarker, clustererOption}) => {
+    const container = useRef(); 
+    const [kakaoMap, setKakaoMap] = useState(null);
+    const [, setClusterer] = useState(); 
 
-    const [, setMyClusterer] = useState(); // 내 위치토글을 위해 만든 클러스터러입니다.
+    const [, setMyClusterer] = useState(); 
 
-    // 로드뷰를 위해 만든 변수들입니다.
     const rvWrapperRef = useRef();
     const roadViewRef = useRef();
     const roadBtnRef = useRef();
     const [, setRoadClusterer] = useState();
     const [isRoadView, setIsRoadView] = useState(false);
 
-    // 맵을 생성합니다.
-    useEffect(() => {
-        const options = {
-            center : new kakao.maps.LatLng(mapCenter.lat, mapCenter.lng),
-            level: mapLevel  // 처음 줌 거리 낮을수록 줌인
-        };
-        const map = new kakao.maps.Map(container.current, options); 
-        setKakaoMap(map);
-    }, [container]);
-    
-    useEffect(() => {
-        if(!kakaoMap){return}
-        if(isMarker){toggleMarker()}
-    }, [kakaoMap])
 
     // (좌표값이 들어있는배열, 클러스터러, 마커이미지, 클러스터러이미지)
     const addMarkClust = (array, setClusterer, markerImg) => {
         if(array.length == 0){console.error("No marker array"); return;}
 
-        var imageSize = new kakao.maps.Size(20, 30),
-            imageOption = {offset: new kakao.maps.Point(4, 4)};
-        var markerImage = markerImg?new kakao.maps.MarkerImage(markerImg, imageSize, imageOption):null;
+        
+        var markerImage = null;
+        if(markerImg){
+            var imageSize = new kakao.maps.Size(makerOption.makerImg.width, makerOption.makerImg.height),
+                imageOption = {offset: new kakao.maps.Point(4, 4)};
+            markerImage = new kakao.maps.MarkerImage(markerImg, imageSize, imageOption);
+        }
     
         let markers = [];
         array.map(item => {
@@ -49,7 +35,7 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, marke
                 new kakao.maps.Marker({
                     map: kakaoMap, 
                     position: new kakao.maps.LatLng(item.lat, item.lng),
-                    image: markerImage 
+                    image: markerImage, 
                 })
             );
         })
@@ -71,8 +57,6 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, marke
         });
         setClusterer(clusterer);
     }
-
-
 
     // 로드맵 토글
     const onClickRoad = () => {
@@ -149,56 +133,73 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, marke
 
 
     // 1차 기능 -----------
+    useEffect(() => {
+        const options = {
+            center : new kakao.maps.LatLng(mapCenter.lat, mapCenter.lng),
+            level: mapLevel  // 처음 줌 거리 낮을수록 줌인
+        };
+        const map = new kakao.maps.Map(container.current, options); 
+        setKakaoMap(map);
+
+        if(isMyLocation){
+            runMyLocation(map);        
+        }
+    }, [container]);
+
     const toggleMarker = () => {
         isMarker?
-        addMarkClust(markerArr, setClusterer) // 마커, 클러스터러 추가
+        addMarkClust(makerOption.posArr, setClusterer, makerOption.makerImg.src) // 마커, 클러스터러 추가
         :
         setClusterer(clusterer=>{if(!clusterer){return clusterer}; clusterer.clear(); return clusterer;}) // 마커, 클러스터러 제거
     }
 
     useEffect(() => {
         if(!kakaoMap){return;}
-        toggleMarker();
-    }, [isMarker])
+        if(kakaoMap) toggleMarker();
+    }, [isMarker, kakaoMap])
 
     useEffect(() => {
         if(!kakaoMap){return;}
+        runMyLocation(kakaoMap);
+    }, [isMyLocation])
+    
+    const runMyLocation= (_map) => {
         if(isMyLocation){
             // 마커의 토글을 위하여 클러스터러안에 마커를 담습니다.
             function displayMarker(locPosition) {
               let markers = [];
               var marker = new kakao.maps.Marker({  
-                  map: kakaoMap, 
+                  map: _map, 
                   position: locPosition
               });
               markers.push(marker);
         
               var clusterer = new kakao.maps.MarkerClusterer({
-                map: kakaoMap,
+                map: _map,
                 averageCenter: true, 
                 minLevel: 1,
                 disableClickZoom: true,
               });
               clusterer.addMarkers(markers);
               setMyClusterer(clusterer);
-              kakaoMap.setCenter(locPosition);      
+              _map.setCenter(locPosition);      
             }
         
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
-                  var lat = position.coords.latitude, // 위도
-                      lon = position.coords.longitude; // 경도
-                  var locPosition = new kakao.maps.LatLng(lat, lon);
-                  displayMarker(locPosition);
+                    var lat = position.coords.latitude, // 위도
+                        lon = position.coords.longitude; // 경도
+                    var locPosition = new kakao.maps.LatLng(lat, lon);
+                    displayMarker(locPosition);
                 });
             }else{ 
-              alert("navigator.geolocation 지원하지 않음")
+              console.error("navigator.geolocation 지원하지 않음")
             }
         }else{
             setMyClusterer(clusterer=>{ if(!clusterer){return} clusterer.clear(); return clusterer;})
         }
-    }, [isMyLocation])
-    
+    }
+
     useEffect(() => {
         if(!kakaoMap){return;}
         if(mapType == "normal"){
@@ -234,17 +235,7 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, marke
         <div>
             <div className='kakaomapContainer' ref={container} >
                 {/* <div ref={container} />
-                <TabWrap>
-                    <MarkerToggleBtn onClick={onClickMarkerToggle}>마커 클러스터러 토글</MarkerToggleBtn>
-                    <MarkerToggleBtn onClick={() => kakaoMap.setMapTypeId(kakao.maps.MapTypeId.ROADMAP) }>일반지도</MarkerToggleBtn>
-                    <MarkerToggleBtn onClick={() => kakaoMap.addOverlayMapTypeId(kakao.maps.MapTypeId.USE_DISTRICT) }>지적지도 on</MarkerToggleBtn>
-                    <MarkerToggleBtn onClick={() => kakaoMap.removeOverlayMapTypeId(kakao.maps.MapTypeId.USE_DISTRICT) }>지적지도 off</MarkerToggleBtn>
-                    <MarkerToggleBtn onClick={() => kakaoMap.setMapTypeId(kakao.maps.MapTypeId.HYBRID) }>위성지도</MarkerToggleBtn>
                     <MarkerToggleBtn onClick={onClickRoad} ref={roadBtnRef}>로드뷰</MarkerToggleBtn>
-                    <MarkerToggleBtn onClick={() => kakaoMap.setLevel(kakaoMap.getLevel() - 1) }>줌인</MarkerToggleBtn>
-                    <MarkerToggleBtn onClick={() => kakaoMap.setLevel(kakaoMap.getLevel() + 1) }>줌아웃</MarkerToggleBtn>
-                    <MarkerToggleBtn onClick={onClickMy}>내위치</MarkerToggleBtn>
-                </TabWrap>
                 <RvWrapper ref={rvWrapperRef}>
                     <RoadViewDiv ref={roadViewRef}></RoadViewDiv>
                 </RvWrapper> */}
