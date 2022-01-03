@@ -27,38 +27,32 @@ function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Sy
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-// import styled from "styled-components"
-// import redMarker from '../img/redMarker.png';
 var _window = window,
     kakao = _window.kakao;
 
 var KakaoMap = function KakaoMap(_ref) {
   var mapType = _ref.mapType,
-      isCadastral = _ref.isCadastral,
+      overlayMapType = _ref.overlayMapType,
       mapLevel = _ref.mapLevel,
       mapCenter = _ref.mapCenter,
       isMyLocation = _ref.isMyLocation,
-      markerArr = _ref.markerArr,
+      makerOption = _ref.makerOption,
       isMarker = _ref.isMarker,
       clustererOption = _ref.clustererOption;
-  var container = (0, _react.useRef)(); // 맵을 담을 ref 입니다.
+  var container = (0, _react.useRef)();
 
   var _useState = (0, _react.useState)(null),
       _useState2 = _slicedToArray(_useState, 2),
       kakaoMap = _useState2[0],
-      setKakaoMap = _useState2[1]; // 카카오맵을 전역에서 쓸수있도록 만든 변수입니다.
-
+      setKakaoMap = _useState2[1];
 
   var _useState3 = (0, _react.useState)(),
       _useState4 = _slicedToArray(_useState3, 2),
-      setClusterer = _useState4[1]; // 마커를 담는 클러스터러입니다. 
-
+      setClusterer = _useState4[1];
 
   var _useState5 = (0, _react.useState)(),
       _useState6 = _slicedToArray(_useState5, 2),
-      setMyClusterer = _useState6[1]; // 내 위치토글을 위해 만든 클러스터러입니다.
-  // 로드뷰를 위해 만든 변수들입니다.
-
+      setMyClusterer = _useState6[1];
 
   var rvWrapperRef = (0, _react.useRef)();
   var roadViewRef = (0, _react.useRef)();
@@ -71,27 +65,8 @@ var KakaoMap = function KakaoMap(_ref) {
   var _useState9 = (0, _react.useState)(false),
       _useState10 = _slicedToArray(_useState9, 2),
       isRoadView = _useState10[0],
-      setIsRoadView = _useState10[1]; // 맵을 생성합니다.
+      setIsRoadView = _useState10[1]; // (좌표값이 들어있는배열, 클러스터러, 마커이미지, 클러스터러이미지)
 
-
-  (0, _react.useEffect)(function () {
-    var options = {
-      center: new kakao.maps.LatLng(mapCenter.lat, mapCenter.lng),
-      level: mapLevel // 처음 줌 거리 낮을수록 줌인
-
-    };
-    var map = new kakao.maps.Map(container.current, options);
-    setKakaoMap(map);
-  }, [container]);
-  (0, _react.useEffect)(function () {
-    if (!kakaoMap) {
-      return;
-    }
-
-    if (isMarker) {
-      toggleMarker();
-    }
-  }, [kakaoMap]); // (좌표값이 들어있는배열, 클러스터러, 마커이미지, 클러스터러이미지)
 
   var addMarkClust = function addMarkClust(array, setClusterer, markerImg) {
     if (array.length == 0) {
@@ -99,11 +74,16 @@ var KakaoMap = function KakaoMap(_ref) {
       return;
     }
 
-    var imageSize = new kakao.maps.Size(20, 30),
-        imageOption = {
-      offset: new kakao.maps.Point(4, 4)
-    };
-    var markerImage = markerImg ? new kakao.maps.MarkerImage(markerImg, imageSize, imageOption) : null;
+    var markerImage = null;
+
+    if (markerImg) {
+      var imageSize = new kakao.maps.Size(makerOption.makerImg.width, makerOption.makerImg.height),
+          imageOption = {
+        offset: new kakao.maps.Point(4, 4)
+      };
+      markerImage = new kakao.maps.MarkerImage(markerImg, imageSize, imageOption);
+    }
+
     var markers = [];
     array.map(function (item) {
       markers.push(new kakao.maps.Marker({
@@ -194,11 +174,25 @@ var KakaoMap = function KakaoMap(_ref) {
     }
 
     setIsRoadView(!isRoadView);
-  }; // 1차 기능 -----------
+  };
 
+  (0, _react.useEffect)(function () {
+    if (!mapCenter || !mapCenter.lat || !mapCenter.lng) {
+      console.error("mapCenter Error");
+      return;
+    }
+
+    var options = {
+      center: new kakao.maps.LatLng(mapCenter.lat, mapCenter.lng),
+      level: mapLevel // 처음 줌 거리 낮을수록 줌인
+
+    };
+    var map = new kakao.maps.Map(container.current, options);
+    setKakaoMap(map);
+  }, [container]);
 
   var toggleMarker = function toggleMarker() {
-    isMarker ? addMarkClust(markerArr, setClusterer) // 마커, 클러스터러 추가
+    isMarker ? addMarkClust(makerOption.posArr, setClusterer, makerOption.makerImg.src) // 마커, 클러스터러 추가
     : setClusterer(function (clusterer) {
       if (!clusterer) {
         return clusterer;
@@ -215,13 +209,17 @@ var KakaoMap = function KakaoMap(_ref) {
       return;
     }
 
-    toggleMarker();
-  }, [isMarker]);
+    if (kakaoMap) toggleMarker();
+  }, [isMarker, kakaoMap]);
   (0, _react.useEffect)(function () {
     if (!kakaoMap) {
       return;
     }
 
+    runMyLocation();
+  }, [isMyLocation, kakaoMap]);
+
+  var runMyLocation = function runMyLocation() {
     if (isMyLocation) {
       // 마커의 토글을 위하여 클러스터러안에 마커를 담습니다.
       var displayMarker = function displayMarker(locPosition) {
@@ -252,7 +250,7 @@ var KakaoMap = function KakaoMap(_ref) {
           displayMarker(locPosition);
         });
       } else {
-        alert("navigator.geolocation 지원하지 않음");
+        console.error("navigator.geolocation 지원하지 않음");
       }
     } else {
       setMyClusterer(function (clusterer) {
@@ -264,7 +262,8 @@ var KakaoMap = function KakaoMap(_ref) {
         return clusterer;
       });
     }
-  }, [isMyLocation]);
+  };
+
   (0, _react.useEffect)(function () {
     if (!kakaoMap) {
       return;
@@ -275,18 +274,30 @@ var KakaoMap = function KakaoMap(_ref) {
     } else if (mapType == "satellite") {
       kakaoMap.setMapTypeId(kakao.maps.MapTypeId.HYBRID);
     }
-  }, [mapType]);
+  }, [mapType, kakaoMap]);
   (0, _react.useEffect)(function () {
     if (!kakaoMap) {
       return;
     }
 
-    if (isCadastral) {
-      kakaoMap.addOverlayMapTypeId(kakao.maps.MapTypeId.USE_DISTRICT);
+    var changeMapType = null;
+
+    if (overlayMapType == "traffic") {
+      changeMapType = kakao.maps.MapTypeId.TRAFFIC;
+    } else if (overlayMapType == "roadview") {
+      changeMapType = kakao.maps.MapTypeId.ROADVIEW;
+    } else if (overlayMapType == "terrain") {
+      changeMapType = kakao.maps.MapTypeId.TERRAIN;
+    } else if (overlayMapType == "use_district") {
+      changeMapType = kakao.maps.MapTypeId.USE_DISTRICT;
     } else {
-      kakaoMap.removeOverlayMapTypeId(kakao.maps.MapTypeId.USE_DISTRICT);
+      return;
     }
-  }, [isCadastral]);
+
+    if (changeMapType) {
+      kakaoMap.addOverlayMapTypeId(changeMapType);
+    }
+  }, [overlayMapType, kakaoMap]);
   (0, _react.useEffect)(function () {
     if (!kakaoMap) {
       return;

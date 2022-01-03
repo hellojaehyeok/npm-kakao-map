@@ -10,17 +10,17 @@ function App() {
   // satellite -> 위성지도
   const [mapType, setMapType] = useState("normal");
   
-  // 지적지도 bool 
-  const [isCadastral, setIsCadastral] = useState(false);
+  // 오버레이 지도 타입
+  const [overlayMapType, setOverlayMapType] = useState(null);
 
   // 지도 레벨
   const [mapLevel, setMapLevel] = useState(3);
 
   // 지도 중점
-  const [mapCenter, setMapCenter] = useState({lat:37.496, lng:127.029});
+  const [mapCenter, setMapCenter] = useState({lat:37.498, lng:127.028});
 
   // 현재 위치
-  const [isMyLocation, setIsMyLocation] = useState(false);
+  const [isMyLocation, setIsMyLocation] = useState(true);
 
   // 마커 토글, 마커 위치
   const [makerOption, setMakerOption] = useState({
@@ -46,12 +46,9 @@ function App() {
 
   return (
     <div className="App">
-      <button onClick={() => setIsMyLocation(!isMyLocation)}>내위치 토글</button>
-      <button onClick={() => setIsMarker(!isMarker)}>마커 토글</button>
-
       <KakaoMap 
         mapType={mapType}
-        isCadastral={isCadastral}
+        overlayMapType={overlayMapType}
         mapLevel={mapLevel}
         mapCenter={mapCenter}
         isMyLocation={isMyLocation}

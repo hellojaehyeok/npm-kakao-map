@@ -3,7 +3,7 @@ import './kakaomap.css';
 
 const { kakao } = window;
 
-const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, makerOption, isMarker, clustererOption}) => {
+const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, makerOption, isMarker, clustererOption}) => {
     const container = useRef(); 
     const [kakaoMap, setKakaoMap] = useState(null);
     const [, setClusterer] = useState(); 
@@ -131,19 +131,17 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, maker
     }
 
 
-
-    // 1차 기능 -----------
     useEffect(() => {
+        if(!mapCenter || !mapCenter.lat || !mapCenter.lng){
+            console.error("mapCenter Error")
+            return;
+        }
         const options = {
             center : new kakao.maps.LatLng(mapCenter.lat, mapCenter.lng),
             level: mapLevel  // 처음 줌 거리 낮을수록 줌인
         };
         const map = new kakao.maps.Map(container.current, options); 
         setKakaoMap(map);
-
-        if(isMyLocation){
-            runMyLocation(map);        
-        }
     }, [container]);
 
     const toggleMarker = () => {
@@ -160,29 +158,29 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, maker
 
     useEffect(() => {
         if(!kakaoMap){return;}
-        runMyLocation(kakaoMap);
-    }, [isMyLocation])
+        runMyLocation();
+    }, [isMyLocation, kakaoMap])
     
-    const runMyLocation= (_map) => {
+    const runMyLocation= () => {
         if(isMyLocation){
             // 마커의 토글을 위하여 클러스터러안에 마커를 담습니다.
             function displayMarker(locPosition) {
               let markers = [];
               var marker = new kakao.maps.Marker({  
-                  map: _map, 
+                  map: kakaoMap, 
                   position: locPosition
               });
               markers.push(marker);
         
               var clusterer = new kakao.maps.MarkerClusterer({
-                map: _map,
+                map: kakaoMap,
                 averageCenter: true, 
                 minLevel: 1,
                 disableClickZoom: true,
               });
               clusterer.addMarkers(markers);
               setMyClusterer(clusterer);
-              _map.setCenter(locPosition);      
+              kakaoMap.setCenter(locPosition);      
             }
         
             if (navigator.geolocation) {
@@ -207,16 +205,29 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, maker
         }else if(mapType == "satellite"){
             kakaoMap.setMapTypeId(kakao.maps.MapTypeId.HYBRID)
         }
-    }, [mapType])
+    }, [mapType, kakaoMap])
 
     useEffect(() => {
         if(!kakaoMap){return;}
-        if(isCadastral){
-            kakaoMap.addOverlayMapTypeId(kakao.maps.MapTypeId.USE_DISTRICT)
+
+        let changeMapType = null;
+        if(overlayMapType == "traffic"){
+            changeMapType = kakao.maps.MapTypeId.TRAFFIC; 
+        }else if(overlayMapType == "roadview"){
+            changeMapType = kakao.maps.MapTypeId.ROADVIEW; 
+        }else if(overlayMapType == "terrain"){
+            changeMapType = kakao.maps.MapTypeId.TERRAIN; 
+        }else if(overlayMapType == "use_district"){
+            changeMapType = kakao.maps.MapTypeId.USE_DISTRICT; 
         }else{
-            kakaoMap.removeOverlayMapTypeId(kakao.maps.MapTypeId.USE_DISTRICT)
+            return;
         }
-    }, [isCadastral])
+
+        if(changeMapType){
+            kakaoMap.addOverlayMapTypeId(changeMapType)
+        }
+    }, [overlayMapType, kakaoMap])
+
 
     useEffect(() => {
         if(!kakaoMap){return;}
@@ -240,7 +251,6 @@ const KakaoMap = ({mapType, isCadastral, mapLevel,mapCenter, isMyLocation, maker
                     <RoadViewDiv ref={roadViewRef}></RoadViewDiv>
                 </RvWrapper> */}
             </div>
-
         </div>
     )
 };
