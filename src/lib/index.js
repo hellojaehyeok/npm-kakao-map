@@ -1,2 +1,2 @@
-export { default as Kakaomap } from "./kakaomap.jsx";
+export { default as KakaoMap } from "./kakaomap.js";
  
