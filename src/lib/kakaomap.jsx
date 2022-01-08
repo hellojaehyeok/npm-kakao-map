@@ -3,19 +3,14 @@ import './kakaomap.css';
 
 const { kakao } = window;
 
-const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, makerOption, isMarker, clustererOption}) => {
+const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, makerOption, isMarker, clustererOption, roadViewRef, roadBtnRef, isRoadView}) => {
     const container = useRef(); 
     const [kakaoMap, setKakaoMap] = useState(null);
     const [, setClusterer] = useState(); 
 
     const [, setMyClusterer] = useState(); 
 
-    const rvWrapperRef = useRef();
-    const roadViewRef = useRef();
-    const roadBtnRef = useRef();
     const [, setRoadClusterer] = useState();
-    const [isRoadView, setIsRoadView] = useState(false);
-
 
     // (좌표값이 들어있는배열, 클러스터러, 마커이미지, 클러스터러이미지)
     const addMarkClust = (array, setClusterer, markerImg) => {
@@ -59,8 +54,11 @@ const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, ma
     }
 
     // 로드맵 토글
-    const onClickRoad = () => {
-        if(!isRoadView){
+    useEffect(() => {
+        if(!kakaoMap){return;}
+        if(!roadViewRef || !roadBtnRef){return}
+
+        if(isRoadView){
             var rv = new kakao.maps.Roadview(roadViewRef.current); 
             var rvClient = new kakao.maps.RoadviewClient();
 
@@ -102,12 +100,12 @@ const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, ma
                 rvClient.getNearestPanoId(position, 50, function(panoId) {
                     if (panoId === null) {
                     roadViewRef.current.style.display = 'none';
-                    rvWrapperRef.current.style.pointerEvents  = 'none';
+                    roadViewRef.current.style.pointerEvents  = 'none';
                     kakaoMap.relayout();
                     } else {
                     kakaoMap.relayout();
                     roadViewRef.current.style.display = 'block'; 
-                    rvWrapperRef.current.style.pointerEvents  = 'auto';
+                    roadViewRef.current.style.pointerEvents  = 'auto';
                     rv.setPanoId(panoId, position);
                     rv.relayout();
                     }
@@ -116,20 +114,16 @@ const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, ma
 
             kakao.maps.event.addListener(kakaoMap, 'click', clickHandler);
             roadBtnRef.current.addEventListener("click", () => {
-            kakao.maps.event.removeListener(kakaoMap, 'click', clickHandler);
-            setRoadClusterer(clusterer=>{clusterer.clear(); return clusterer;})
+                kakao.maps.event.removeListener(kakaoMap, 'click', clickHandler);
+                setRoadClusterer(clusterer=>{clusterer.clear(); return clusterer;})
             })
             kakaoMap.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW);
         }else{
             kakaoMap.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW);
             roadViewRef.current.style.display = 'none';
-            rvWrapperRef.current.style.pointerEvents = 'none';
+            roadViewRef.current.style.pointerEvents = 'none';
         }
-
-        setIsRoadView(!isRoadView);
-
-    }
-
+    }, [isRoadView, kakaoMap])
 
     useEffect(() => {
         if(!mapCenter || !mapCenter.lat || !mapCenter.lng){
@@ -213,8 +207,6 @@ const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, ma
         let changeMapType = null;
         if(overlayMapType == "traffic"){
             changeMapType = kakao.maps.MapTypeId.TRAFFIC; 
-        }else if(overlayMapType == "roadview"){
-            changeMapType = kakao.maps.MapTypeId.ROADVIEW; 
         }else if(overlayMapType == "terrain"){
             changeMapType = kakao.maps.MapTypeId.TERRAIN; 
         }else if(overlayMapType == "use_district"){
@@ -243,13 +235,8 @@ const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, ma
     }, [mapLevel])
 
     return(
-        <div>
-            <div className='kakaomapContainer' ref={container} >
-                {/* <div ref={container} />
-                    <MarkerToggleBtn onClick={onClickRoad} ref={roadBtnRef}>로드뷰</MarkerToggleBtn>
-                <RvWrapper ref={rvWrapperRef}>
-                    <RoadViewDiv ref={roadViewRef}></RoadViewDiv>
-                </RvWrapper> */}
+        <div style={{width: "100%", height: "100%"}}>
+            <div style={{width: "100%", height: "100%"}} className='kakaomapContainer' ref={container} >
             </div>
         </div>
     )

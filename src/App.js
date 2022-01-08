@@ -1,11 +1,15 @@
 
-import { useEffect, useState } from 'react';
-import './App.css';
+import { useEffect, useRef, useState } from 'react';
 import KakaoMap from './lib/kakaomap.jsx';
 
 
 function App() {
-  
+  // ----------------
+  // 예시 및 테스트 코드입니다.
+  // ----------------
+  const roadViewRef = useRef(); 
+  const roadBtnRef = useRef(); 
+
   // normal -> 일반 지도
   // satellite -> 위성지도
   const [mapType, setMapType] = useState("normal");
@@ -36,6 +40,8 @@ function App() {
   })
   const [isMarker, setIsMarker] = useState(true);
 
+  const [isRoadView, setIsRoadView] = useState(false);
+
   // 클러스터러 옵션
   const clustererOption = {
     disableClickZoom:true,
@@ -43,9 +49,9 @@ function App() {
     minLevel:2,
   }
 
-
+  
   return (
-    <div className="App">
+    <div style={{width:"100vw", height:"100vh"}}>
       <KakaoMap 
         mapType={mapType}
         overlayMapType={overlayMapType}
@@ -55,7 +61,28 @@ function App() {
         makerOption={makerOption}
         isMarker={isMarker}
         clustererOption={clustererOption}
+        
+        roadViewRef={roadViewRef}
+        roadBtnRef={roadBtnRef}
+        isRoadView={isRoadView}
       />
+
+      <div style={{
+        position:"absolute",
+        bottom:"400px",
+        left:"22px",
+        width:"300px",
+        height:"300px",
+        zIndex: 99,
+        }} ref={roadViewRef}></div>
+
+    <div onClick={() => setIsRoadView(!isRoadView)} ref={roadBtnRef} style={{
+      position:"absolute",
+      zIndex: 99,
+      backgroundColor:"salmon",
+      top:0,
+    }}>로드뷰</div>
+
 
 
     </div>

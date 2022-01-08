@@ -13,9 +13,10 @@ react로 이주어지지 않았고 반복을 줄이고자 제작하였습니다.
 현재있는 기능들은 아래와 같습니다.
 앞으로 계속 추가할 예정입니다.
 1. 일반지도 / 위성지도
-2. 교통정보 / 로드뷰 / 지형정보 / 지적편집도 
-3. 현재위치
+2. 교통정보 / 지형정보 / 지적편집도 
+3. 현재위치 토글
 4. 마커/클러스터러 토글
+5. 로드뷰 토글
 
 <br /><br />
 
@@ -52,25 +53,28 @@ npm설치 후 index.html에 api키를 넣습니다.
 |isMarker|마커 토글 유무입니다.|Bool|
 |makerOption|마커 옵션입니다.|Object|
 |clustererOption|클러스터러 옵션입니다.|Object|
+|roadViewRef|로드뷰 렌더 할 돔의 `useRef`입니다.|useRef|
+|roadBtnRef|로드뷰 토글 할 버튼의 `useRef`입니다.|useRef|
+|isRoadView|로드뷰 토글을 위한 변수입니다.|Bool|
+
 
 ### Props 추가 설명
-* mapType        
+#### mapType        
     1. normal -> 일반지도   
     2. satellite -> 위성지도
         
-* overlayMapType
+#### overlayMapType
     1. traffic -> 교통정보
-    2. roadview -> 로드뷰
-    3. terrain -> 지형정보
-    4. use_district -> 지적편집도
+    2. terrain -> 지형정보
+    3. use_district -> 지적편집도
 
-* mapLevel         
+#### mapLevel         
     최소 1부터 14까지 있으며 작을수록 줌 인됩니다.         
 
-* mapCenter       
+#### mapCenter       
     lat와 lng에 위도와 경도를 넣습니다.
 
-* makerOption   
+#### makerOption   
 마커 옵션입니다.        
 
     * makerImg       
@@ -93,7 +97,7 @@ makerOption 예시 코드입니다.
 }
 ```
 
-* clustererOption
+#### clustererOption
 클러스터러 옵션입니다.
     
     * disableClickZoom        
@@ -111,5 +115,9 @@ clustererOption 예시 코드입니다.
     minLevel:2,
 }
 ```
+
+#### roadViewRef, roadBtnRef, isRoadView
+로드뷰 토글 기능을 사용하기 위해서는 세개가 한 세트입니다.
+
 
 <br /><br />
