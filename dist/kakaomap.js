@@ -38,7 +38,10 @@ var KakaoMap = function KakaoMap(_ref) {
       isMyLocation = _ref.isMyLocation,
       makerOption = _ref.makerOption,
       isMarker = _ref.isMarker,
-      clustererOption = _ref.clustererOption;
+      clustererOption = _ref.clustererOption,
+      roadViewRef = _ref.roadViewRef,
+      roadBtnRef = _ref.roadBtnRef,
+      isRoadView = _ref.isRoadView;
   var container = (0, _react.useRef)();
 
   var _useState = (0, _react.useState)(null),
@@ -54,18 +57,9 @@ var KakaoMap = function KakaoMap(_ref) {
       _useState6 = _slicedToArray(_useState5, 2),
       setMyClusterer = _useState6[1];
 
-  var rvWrapperRef = (0, _react.useRef)();
-  var roadViewRef = (0, _react.useRef)();
-  var roadBtnRef = (0, _react.useRef)();
-
   var _useState7 = (0, _react.useState)(),
       _useState8 = _slicedToArray(_useState7, 2),
-      setRoadClusterer = _useState8[1];
-
-  var _useState9 = (0, _react.useState)(false),
-      _useState10 = _slicedToArray(_useState9, 2),
-      isRoadView = _useState10[0],
-      setIsRoadView = _useState10[1]; // (좌표값이 들어있는배열, 클러스터러, 마커이미지, 클러스터러이미지)
+      setRoadClusterer = _useState8[1]; // (좌표값이 들어있는배열, 클러스터러, 마커이미지, 클러스터러이미지)
 
 
   var addMarkClust = function addMarkClust(array, setClusterer, markerImg) {
@@ -109,18 +103,26 @@ var KakaoMap = function KakaoMap(_ref) {
   }; // 로드맵 토글
 
 
-  var onClickRoad = function onClickRoad() {
-    if (!isRoadView) {
+  (0, _react.useEffect)(function () {
+    if (!kakaoMap) {
+      return;
+    }
+
+    if (!roadViewRef || !roadBtnRef) {
+      return;
+    }
+
+    if (isRoadView) {
       var toggleRoadview = function toggleRoadview(position) {
         rvClient.getNearestPanoId(position, 50, function (panoId) {
           if (panoId === null) {
             roadViewRef.current.style.display = 'none';
-            rvWrapperRef.current.style.pointerEvents = 'none';
+            roadViewRef.current.style.pointerEvents = 'none';
             kakaoMap.relayout();
           } else {
             kakaoMap.relayout();
             roadViewRef.current.style.display = 'block';
-            rvWrapperRef.current.style.pointerEvents = 'auto';
+            roadViewRef.current.style.pointerEvents = 'auto';
             rv.setPanoId(panoId, position);
             rv.relayout();
           }
@@ -170,12 +172,9 @@ var KakaoMap = function KakaoMap(_ref) {
     } else {
       kakaoMap.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW);
       roadViewRef.current.style.display = 'none';
-      rvWrapperRef.current.style.pointerEvents = 'none';
+      roadViewRef.current.style.pointerEvents = 'none';
     }
-
-    setIsRoadView(!isRoadView);
-  };
-
+  }, [isRoadView, kakaoMap]);
   (0, _react.useEffect)(function () {
     if (!mapCenter || !mapCenter.lat || !mapCenter.lng) {
       console.error("mapCenter Error");
@@ -284,8 +283,6 @@ var KakaoMap = function KakaoMap(_ref) {
 
     if (overlayMapType == "traffic") {
       changeMapType = kakao.maps.MapTypeId.TRAFFIC;
-    } else if (overlayMapType == "roadview") {
-      changeMapType = kakao.maps.MapTypeId.ROADVIEW;
     } else if (overlayMapType == "terrain") {
       changeMapType = kakao.maps.MapTypeId.TERRAIN;
     } else if (overlayMapType == "use_district") {
@@ -315,7 +312,16 @@ var KakaoMap = function KakaoMap(_ref) {
 
     kakaoMap.setLevel(mapLevel);
   }, [mapLevel]);
-  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", {
+  return /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      width: "100%",
+      height: "100%"
+    }
+  }, /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      width: "100%",
+      height: "100%"
+    },
     className: "kakaomapContainer",
     ref: container
   }));

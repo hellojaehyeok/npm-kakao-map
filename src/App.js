@@ -2,11 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import KakaoMap from './lib/kakaomap.jsx';
 
-
 function App() {
-  // ----------------
-  // 예시 및 테스트 코드입니다.
-  // ----------------
   const roadViewRef = useRef(); 
   const roadBtnRef = useRef(); 
 
@@ -49,7 +45,6 @@ function App() {
     minLevel:2,
   }
 
-  
   return (
     <div style={{width:"100vw", height:"100vh"}}>
       <KakaoMap 
@@ -66,25 +61,6 @@ function App() {
         roadBtnRef={roadBtnRef}
         isRoadView={isRoadView}
       />
-
-      <div style={{
-        position:"absolute",
-        bottom:"400px",
-        left:"22px",
-        width:"300px",
-        height:"300px",
-        zIndex: 99,
-        }} ref={roadViewRef}></div>
-
-    <div onClick={() => setIsRoadView(!isRoadView)} ref={roadBtnRef} style={{
-      position:"absolute",
-      zIndex: 99,
-      backgroundColor:"salmon",
-      top:0,
-    }}>로드뷰</div>
-
-
-
     </div>
   );
 }

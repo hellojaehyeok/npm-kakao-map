@@ -220,7 +220,6 @@ const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, ma
         }
     }, [overlayMapType, kakaoMap])
 
-
     useEffect(() => {
         if(!kakaoMap){return;}
         if(mapLevel < 1){
@@ -235,10 +234,7 @@ const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, ma
     }, [mapLevel])
 
     return(
-        <div style={{width: "100%", height: "100%"}}>
-            <div style={{width: "100%", height: "100%"}} className='kakaomapContainer' ref={container} >
-            </div>
-        </div>
+        <div style={{width: "100%", height: "100%"}} ref={container} ></div>
     )
 };
 
