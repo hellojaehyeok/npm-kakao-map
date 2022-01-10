@@ -11,6 +11,8 @@ const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, ma
 
     const [, setRoadClusterer] = useState();
 
+    const [currentOverlayType, setCurrentOverlayType] = useState([]);
+
     // (좌표값이 들어있는배열, 클러스터러, 마커이미지, 클러스터러이미지)
     const addMarkClust = (array, setClusterer, markerImg) => {
         if(array.length == 0){console.error("No marker array"); return;}
@@ -211,10 +213,21 @@ const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, ma
         }else if(overlayMapType == "use_district"){
             changeMapType = kakao.maps.MapTypeId.USE_DISTRICT; 
         }else{
+            if(currentOverlayType.length){
+                currentOverlayType.map(item => {
+                    kakaoMap.removeOverlayMapTypeId(item);
+                })
+                setCurrentOverlayType([]);
+            }
             return;
         }
 
         if(changeMapType){
+            if(!currentOverlayType.some(item => item==changeMapType)){
+                let newArr = currentOverlayType;
+                newArr.push(changeMapType);
+                setCurrentOverlayType([...newArr]);
+            }
             kakaoMap.addOverlayMapTypeId(changeMapType)
         }
     }, [overlayMapType, kakaoMap])

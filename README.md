@@ -6,7 +6,11 @@ react로 이주어지지 않았고 반복을 줄이고자 제작하였습니다.
 사용하시면 깃허브에 ⭐ 한 번만 눌러주시면 감사하겠습니다!!      
 오류가 있거나 문의할게 있으면 Issues 혹은 이메일로 연락 부탁드립니다.   
 
+예제 코드 아래에서 확인 가능합니다.      
+https://github.com/hellojaehyeok/kakao-map-example     
+
 <img width="1761" alt="스크린샷 2022-01-03 오후 9 24 28" src="https://user-images.githubusercontent.com/62782245/147930224-2fa3b723-b832-4d57-8fc9-7eaf4094caee.png">
+
 
 
 ---
