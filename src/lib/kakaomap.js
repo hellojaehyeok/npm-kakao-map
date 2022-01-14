@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const { kakao } = window;
 
-const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, makerOption, isMarker, clustererOption, roadViewRef, roadBtnRef, isRoadView}) => {
+const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, makerOption, isMarker, clustererOption, roadViewRef, roadBtnRef, isRoadView, idleMap}) => {
     const container = useRef(); 
     const [kakaoMap, setKakaoMap] = useState(null);
     const [, setClusterer] = useState(); 
@@ -244,6 +244,27 @@ const KakaoMap = ({mapType, overlayMapType, mapLevel,mapCenter, isMyLocation, ma
         }
         kakaoMap.setLevel(mapLevel);
     }, [mapLevel])
+
+    
+
+    var geocoder = new kakao.maps.services.Geocoder();
+    function searchAddrFromCoords(coords, callback) {
+        geocoder.coord2RegionCode(coords.getLng(), coords.getLat(), callback);         
+    }
+
+    useEffect(() => {
+        if(!kakaoMap){return};
+        kakao.maps.event.addListener(kakaoMap, 'idle', function() {
+            searchAddrFromCoords(kakaoMap.getCenter(), displayCenterInfo);
+        });
+    }, [kakaoMap])
+
+    function displayCenterInfo(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+            idleMap && idleMap(result)
+        }    
+    }
+
 
     return(
         <div style={{width: "100%", height: "100%"}} ref={container} ></div>

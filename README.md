@@ -21,6 +21,7 @@ https://github.com/hellojaehyeok/kakao-map-example
 3. 현재위치 토글
 4. 마커/클러스터러 토글
 5. 로드뷰 토글
+6. 맵 중심 좌표 정보 얻어오기
 
 <br /><br />
 
@@ -60,7 +61,7 @@ npm설치 후 index.html에 api키를 넣습니다.
 |roadViewRef|로드뷰 렌더 할 돔의 `useRef`입니다.|useRef|
 |roadBtnRef|로드뷰 토글 할 버튼의 `useRef`입니다.|useRef|
 |isRoadView|로드뷰 토글을 위한 변수입니다.|Bool|
-
+|idleMap|맵 중심 좌표 혹은 레벨이 바뀔 때 정보를 얻어오는 함수입니다.|Function|
 
 ### Props 추가 설명
 #### mapType        

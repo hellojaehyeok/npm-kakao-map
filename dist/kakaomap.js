@@ -13,6 +13,14 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -39,7 +47,8 @@ var KakaoMap = function KakaoMap(_ref) {
       clustererOption = _ref.clustererOption,
       roadViewRef = _ref.roadViewRef,
       roadBtnRef = _ref.roadBtnRef,
-      isRoadView = _ref.isRoadView;
+      isRoadView = _ref.isRoadView,
+      idleMap = _ref.idleMap;
   var container = (0, _react.useRef)();
 
   var _useState = (0, _react.useState)(null),
@@ -57,7 +66,12 @@ var KakaoMap = function KakaoMap(_ref) {
 
   var _useState7 = (0, _react.useState)(),
       _useState8 = _slicedToArray(_useState7, 2),
-      setRoadClusterer = _useState8[1]; // (좌표값이 들어있는배열, 클러스터러, 마커이미지, 클러스터러이미지)
+      setRoadClusterer = _useState8[1];
+
+  var _useState9 = (0, _react.useState)([]),
+      _useState10 = _slicedToArray(_useState9, 2),
+      currentOverlayType = _useState10[0],
+      setCurrentOverlayType = _useState10[1]; // (좌표값이 들어있는배열, 클러스터러, 마커이미지, 클러스터러이미지)
 
 
   var addMarkClust = function addMarkClust(array, setClusterer, markerImg) {
@@ -286,10 +300,25 @@ var KakaoMap = function KakaoMap(_ref) {
     } else if (overlayMapType == "use_district") {
       changeMapType = kakao.maps.MapTypeId.USE_DISTRICT;
     } else {
+      if (currentOverlayType.length) {
+        currentOverlayType.map(function (item) {
+          kakaoMap.removeOverlayMapTypeId(item);
+        });
+        setCurrentOverlayType([]);
+      }
+
       return;
     }
 
     if (changeMapType) {
+      if (!currentOverlayType.some(function (item) {
+        return item == changeMapType;
+      })) {
+        var newArr = currentOverlayType;
+        newArr.push(changeMapType);
+        setCurrentOverlayType(_toConsumableArray(newArr));
+      }
+
       kakaoMap.addOverlayMapTypeId(changeMapType);
     }
   }, [overlayMapType, kakaoMap]);
@@ -310,6 +339,29 @@ var KakaoMap = function KakaoMap(_ref) {
 
     kakaoMap.setLevel(mapLevel);
   }, [mapLevel]);
+  var geocoder = new kakao.maps.services.Geocoder();
+
+  function searchAddrFromCoords(coords, callback) {
+    geocoder.coord2RegionCode(coords.getLng(), coords.getLat(), callback);
+  }
+
+  (0, _react.useEffect)(function () {
+    if (!kakaoMap) {
+      return;
+    }
+
+    ;
+    kakao.maps.event.addListener(kakaoMap, 'idle', function () {
+      searchAddrFromCoords(kakaoMap.getCenter(), displayCenterInfo);
+    });
+  }, [kakaoMap]);
+
+  function displayCenterInfo(result, status) {
+    if (status === kakao.maps.services.Status.OK) {
+      idleMap && idleMap(result);
+    }
+  }
+
   return /*#__PURE__*/_react.default.createElement("div", {
     style: {
       width: "100%",
