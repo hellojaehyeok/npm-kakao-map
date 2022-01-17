@@ -11,11 +11,31 @@ https://github.com/hellojaehyeok/kakao-map-example
 
 <img width="1761" alt="스크린샷 2022-01-03 오후 9 24 28" src="https://user-images.githubusercontent.com/62782245/147930224-2fa3b723-b832-4d57-8fc9-7eaf4094caee.png">
 
+<br /><br />
+
+## Start!
+
+카카오맵 api를 사용하기 위한 준비과정입니다.    
+1. [카카오 디벨로퍼](https://developers.kakao.com/)에 접속한 후 우측 상단 내 어플리케이션을 클릭합니다.
+<img width="1743" alt="스크린샷 2022-01-17 오후 11 16 15" src="https://user-images.githubusercontent.com/62782245/149786413-ac9bf183-b27f-4bcc-b560-ca82e014c8f5.png">
+
+2. "애플리케이션 추가하기"를 눌러 프로젝트를 만들어줍니다.
+
+3. 플랫폼 -> Web에서 kakaomap을 사용할 url을 넣습니다.
+
+<img width="1769" alt="스크린샷 2022-01-17 오후 11 25 41" src="https://user-images.githubusercontent.com/62782245/149787914-bce1e986-bb48-457b-a8d3-0e59ea354863.png">
+
+4. 요약정보 -> JavaScript 키를 index.html에 넣습니다.
+
+<img width="1757" alt="스크린샷 2022-01-17 오후 11 30 24" src="https://user-images.githubusercontent.com/62782245/149788611-409e829c-190a-43ed-bc87-ee747041f21b.png">
+
+
+
 
 
 ---
-현재있는 기능들은 아래와 같습니다.
-앞으로 계속 추가할 예정입니다.
+현재있는 기능들은 아래와 같습니다.      
+앞으로 계속 추가할 예정입니다.   
 1. 일반지도 / 위성지도
 2. 교통정보 / 지형정보 / 지적편집도 
 3. 현재위치 토글
